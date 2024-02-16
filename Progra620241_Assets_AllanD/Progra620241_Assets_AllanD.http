@@ -1,0 +1,6 @@
+@Progra620241_Assets_AllanD_HostAddress = http://localhost:5120
+
+GET {{Progra620241_Assets_AllanD_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
