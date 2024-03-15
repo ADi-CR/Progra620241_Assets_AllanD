@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Progra620241_Assets_AllanD.Models;
+using Progra620241_Assets_AllanD.ModelsDTOs;
 
 namespace Progra620241_Assets_AllanD.Controllers
 {
@@ -40,6 +41,76 @@ namespace Progra620241_Assets_AllanD.Controllers
 
             return user;
         }
+
+        // GET: api/Users/GetUserData?pUserName=algo
+        //este get permite obtener los datos puntuales de un usuario
+        //usando el correo como parámetro
+        [HttpGet("GetUserData")]
+        public ActionResult<IEnumerable<UserDTO>> GetUserData(string pUserName)
+        { 
+            //ekl propósito de usar el DTO acá es combinar los datos de las tablas
+            //user y userrole y devolver un solo objeto json con dicha informacion 
+            //además no se sabrá cómo se llaman los atributos originales 
+
+            //para hacer esta consulta NO usares procedimientos almacenados como en 
+            //progra 5, sino que usares LINQ, que permite hacer consultas sobre 
+            //colecciones directamente en la progra
+
+            var query = (from us in _context.Users
+                         join ur in _context.UserRoles on us.UserRoleId equals ur.UserRoleId
+                         where us.UserName == pUserName && us.Active == true
+                         select new
+                         { 
+                            idusuario = us.UserId, 
+                            cedula = us.CardId, 
+                            nombre = us.FirstName, 
+                            apellidos = us.LastName,
+                            telefono = us.PhoneNumber, 
+                            direccion = us.Address, 
+                            correo = us.UserName, 
+                            activo = us.Active, 
+                            idrol = ur.UserRoleId, 
+                            rol = ur.UserRoleDescription
+                         }
+                        ).ToList();
+            //ahora que tenemos el resultado de la consulta en la variable
+            //query, procedemos a crear el resultado de la función 
+
+            //crear el objeto de respuesta 
+            List<UserDTO> listausuarios = new List<UserDTO>();
+
+            //ahora hacemos un recorrido de las posibles iteraciones de 
+            //la variable query y llenamos en cada una de ellas un nuevo 
+            //objeto dto. 
+
+            foreach (var item in query)
+            {
+                UserDTO newUser = new UserDTO()
+                {
+                    CodigoUsuario = item.idusuario,
+                    Cedula = item.cedula,
+                    Nombre = item.nombre,
+                    Apellidos = item.apellidos,
+                    Telefono = item.telefono,
+                    Direccion = item.direccion,
+                    Correo = item.correo,
+                    Activo = item.activo,
+                    CodigoDeRol = item.idrol,
+                    RolDeUsuario = item.rol,
+                    NotasDelUsuario = "No hay comentarios"
+                };
+                listausuarios.Add(newUser);
+            }
+
+            if (listausuarios == null || listausuarios.Count() == 0)
+            {
+                return NotFound();
+            }
+
+            return listausuarios;
+        
+        }
+
 
         // PUT: api/Users/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754

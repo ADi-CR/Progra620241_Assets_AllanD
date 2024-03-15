@@ -12,7 +12,7 @@ namespace Progra620241_Assets_AllanD.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [ApiKey]
+    //[ApiKey]
     public class UserRolesController : ControllerBase
     {
         private readonly Progra620241Context _context;
